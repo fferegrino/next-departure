@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:next_departure/entities/departure.dart';
 import 'package:timeago/timeago.dart' as timeago;
+
+final DateFormat _timeFormat = DateFormat('HH:mm');
 
 class LineColour {
   final Color background;
@@ -46,16 +49,19 @@ class DepartureListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final lineColour = LineColour.fromString(departure.line.toLowerCase());
-    // Remove the suffix "Underground Station" or "Raol Statio" from the station name
+    // Remove the suffix "Underground Station" or "Rail Statio" from the station name
     final stationName = departure.station
+        .replaceAll(RegExp(r' (Underground|Rail) Station$'), '');
+    final destinationName = departure.destination
         .replaceAll(RegExp(r' (Underground|Rail) Station$'), '');
 
     return Container(
       padding: EdgeInsets.all(16),
       child: Column(
         children: [
-          Text(departure.destination, style: TextStyle(fontSize: 20)),
-          Text(timeago.format(departure.time), style: TextStyle(fontSize: 14)),
+          Text(destinationName, style: TextStyle(fontSize: 20)),
+          Text(_timeFormat.format(departure.time.toLocal()),
+              style: TextStyle(fontSize: 14)),
           Container(
             padding: const EdgeInsets.only(left: 8, right: 8),
             decoration: BoxDecoration(
