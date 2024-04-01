@@ -46,15 +46,17 @@ class DepartureListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final lineColour = LineColour.fromString(departure.line.toLowerCase());
-    // Remove the suffix "Underground Station" or "Raol Statio" from the station name
+    // Remove the suffix "Underground Station" or "Rail Statio" from the station name
     final stationName = departure.station
+        .replaceAll(RegExp(r' (Underground|Rail) Station$'), '');
+    final destinationName = departure.destination
         .replaceAll(RegExp(r' (Underground|Rail) Station$'), '');
 
     return Container(
       padding: EdgeInsets.all(16),
       child: Column(
         children: [
-          Text(departure.destination, style: TextStyle(fontSize: 20)),
+          Text(destinationName, style: TextStyle(fontSize: 20)),
           Text(timeago.format(departure.time), style: TextStyle(fontSize: 14)),
           Container(
             padding: const EdgeInsets.only(left: 8, right: 8),

@@ -40,29 +40,27 @@ class TestApp extends StatefulWidget {
 }
 
 class _TestAppState extends State<TestApp> {
-  late Future<StopPointResponse> futureStopPoints;
+  late Future<List<Departure>> futureDepartures;
 
   @override
   void initState() {
     super.initState();
-    // futureStopPoints = fetchStopPoints(lat: 51.507877, lon: -0.087732);
-    futureStopPoints = fetchFilteredStopPoints(lat: 51.507877, lon: -0.087732);
+    // This is London Bridge
+    futureDepartures = fetchDepartures(lat: 51.507877, lon: -0.087732);
   }
 
   @override
   Widget build(BuildContext context) {
-    final FutureBuilder<StopPointResponse> futureBuilder =
-        FutureBuilder<StopPointResponse>(
-      future: futureStopPoints,
+    final FutureBuilder<List<Departure>> futureBuilder =
+        FutureBuilder<List<Departure>>(
+      future: futureDepartures,
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           return ListView.builder(
-            itemCount: snapshot.data!.stopPoints.length,
+            itemCount: snapshot.data!.length,
             itemBuilder: (context, index) {
-              final StopPoint stopPoint = snapshot.data!.stopPoints[index];
-              return ListTile(
-                title: Text(stopPoint.commonName),
-              );
+              final Departure departure = snapshot.data![index];
+              return DepartureListItem(departure: departure);
             },
           );
         } else if (snapshot.hasError) {
