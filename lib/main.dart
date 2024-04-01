@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:next_departure/entities/departure.dart';
+import 'package:next_departure/entities/service/stop_point.dart';
+import 'package:next_departure/entities/service/stop_point_response.dart';
 import 'package:next_departure/entities/test_data.dart';
+import 'package:next_departure/tfl_api.dart';
+import 'package:next_departure/tfl_service.dart';
 import 'package:next_departure/ui/departure_list_item.dart';
 
 void main() {
@@ -22,7 +27,55 @@ class MainApp extends StatelessWidget {
         AppLocalizations.delegate
       ],
       supportedLocales: AppLocalizations.supportedLocales,
-      home: NewApp(),
+      home: TestApp(),
+    );
+  }
+}
+
+class TestApp extends StatefulWidget {
+  const TestApp({super.key});
+
+  @override
+  _TestAppState createState() => _TestAppState();
+}
+
+class _TestAppState extends State<TestApp> {
+  late Future<StopPointResponse> futureStopPoints;
+
+  @override
+  void initState() {
+    super.initState();
+    // futureStopPoints = fetchStopPoints(lat: 51.507877, lon: -0.087732);
+    futureStopPoints = fetchFilteredStopPoints(lat: 51.507877, lon: -0.087732);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final FutureBuilder<StopPointResponse> futureBuilder =
+        FutureBuilder<StopPointResponse>(
+      future: futureStopPoints,
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          return ListView.builder(
+            itemCount: snapshot.data!.stopPoints.length,
+            itemBuilder: (context, index) {
+              final StopPoint stopPoint = snapshot.data!.stopPoints[index];
+              return ListTile(
+                title: Text(stopPoint.commonName),
+              );
+            },
+          );
+        } else if (snapshot.hasError) {
+          return Text('${snapshot.error}');
+        }
+
+        return const CircularProgressIndicator();
+      },
+    );
+
+    return Scaffold(
+      appBar: AppBar(title: Text('Test App')),
+      body: futureBuilder,
     );
   }
 }

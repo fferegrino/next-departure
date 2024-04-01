@@ -13,6 +13,11 @@ StopPoint _$StopPointFromJson(Map<String, dynamic> json) => StopPoint(
       lon: (json['lon'] as num).toDouble(),
       distance: (json['distance'] as num).toDouble(),
       stopType: json['stopType'] as String,
+      modes:
+          (json['modes'] as List<dynamic>?)?.map((e) => e as String).toList(),
+      lines: (json['lines'] as List<dynamic>?)
+          ?.map((e) => Line.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
 
 Map<String, dynamic> _$StopPointToJson(StopPoint instance) => <String, dynamic>{
@@ -22,4 +27,6 @@ Map<String, dynamic> _$StopPointToJson(StopPoint instance) => <String, dynamic>{
       'lon': instance.lon,
       'distance': instance.distance,
       'stopType': instance.stopType,
+      'modes': instance.modes,
+      'lines': instance.lines,
     };

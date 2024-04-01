@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:next_departure/entities/service/line.dart';
 
 part 'stop_point.g.dart';
 
@@ -10,6 +11,8 @@ class StopPoint {
   final double lon;
   final double distance;
   final String stopType;
+  final List<String>? modes;
+  final List<Line>? lines;
 
   StopPoint({
     required this.naptanId,
@@ -18,6 +21,8 @@ class StopPoint {
     required this.lon,
     required this.distance,
     required this.stopType,
+    this.modes,
+    this.lines,
   });
 
   factory StopPoint.fromJson(Map<String, dynamic> json) =>
