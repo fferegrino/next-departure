@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:next_departure/entities/departure.dart';
 import 'package:timeago/timeago.dart' as timeago;
+
+final DateFormat _timeFormat = DateFormat('HH:mm');
 
 class LineColour {
   final Color background;
@@ -57,7 +60,8 @@ class DepartureListItem extends StatelessWidget {
       child: Column(
         children: [
           Text(destinationName, style: TextStyle(fontSize: 20)),
-          Text(timeago.format(departure.time), style: TextStyle(fontSize: 14)),
+          Text(_timeFormat.format(departure.time.toLocal()),
+              style: TextStyle(fontSize: 14)),
           Container(
             padding: const EdgeInsets.only(left: 8, right: 8),
             decoration: BoxDecoration(
