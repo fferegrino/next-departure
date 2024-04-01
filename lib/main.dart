@@ -4,6 +4,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:next_departure/entities/departure.dart';
 import 'package:next_departure/tfl_service.dart';
 import 'package:next_departure/ui/departure_list_item.dart';
+import 'package:geolocator/geolocator.dart';
 
 void main() {
   runApp(const MainApp());
@@ -36,11 +37,27 @@ class NextDepartureApp extends StatefulWidget {
 
 class _NextDepartureAppState extends State<NextDepartureApp> {
   late Future<List<Departure>> futureDepartures;
+  late Future<Position> futurePosition;
 
   @override
   void initState() {
     super.initState();
     // This is London Bridge
+    futurePosition = _determinePosition();
+    futurePosition
+        .then((value) => {
+              setState(() {
+                futureDepartures =
+                    fetchDepartures(lat: value.latitude, lon: value.longitude);
+              })
+            })
+        .catchError((error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.locationError),
+        ),
+      );
+    });
     futureDepartures = fetchDepartures(lat: 51.507877, lon: -0.087732);
   }
 
@@ -69,8 +86,64 @@ class _NextDepartureAppState extends State<NextDepartureApp> {
     );
 
     return Scaffold(
-      appBar: AppBar(title: Text(localizations.appTitle)),
+      appBar: AppBar(
+        title: Text(localizations.appTitle),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: () {
+              setState(() {
+                futureDepartures =
+                    fetchDepartures(lat: 51.507877, lon: -0.087732);
+              });
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.location_on),
+            onPressed: () {
+              _determinePosition().then((position) {
+                setState(() {
+                  futureDepartures = fetchDepartures(
+                      lat: position.latitude, lon: position.longitude);
+                });
+              }).catchError((error) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(localizations.locationError),
+                  ),
+                );
+              });
+            },
+          ),
+        ],
+      ),
       body: futureBuilder,
     );
   }
+}
+
+Future<Position> _determinePosition() async {
+  // Check if location services are enabled
+  bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+  if (!serviceEnabled) {
+    // Location services are not enabled return an error message
+    return Future.error('Location services are disabled.');
+  }
+
+  // Check location permissions
+  LocationPermission permission = await Geolocator.checkPermission();
+  if (permission == LocationPermission.denied) {
+    permission = await Geolocator.requestPermission();
+    if (permission == LocationPermission.denied) {
+      return Future.error('Location permissions are denied');
+    }
+  }
+
+  if (permission == LocationPermission.deniedForever) {
+    return Future.error(
+        'Location permissions are permanently denied, we cannot request permissions.');
+  }
+
+  // If permissions are granted, return the current location
+  return await Geolocator.getCurrentPosition();
 }

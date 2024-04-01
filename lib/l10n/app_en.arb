@@ -4,5 +4,6 @@
     "@helloWorld": {
         "description": "A simple hello world message"
     },
-    "appTitle": "Next departure"
+    "appTitle": "Next departure",
+    "locationError": "Unable to determine your location"
 }
