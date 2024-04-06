@@ -57,7 +57,6 @@ class _NextDepartureAppState extends State<NextDepartureApp> {
                 fetchLocation(lat: value.latitude, lon: value.longitude)
                     .then((value) => {
                           setState(() {
-                            print("Address" + value.address.suburb);
                             location = value.address.suburb;
                           })
                         });
@@ -82,6 +81,12 @@ class _NextDepartureAppState extends State<NextDepartureApp> {
       future: futureDepartures,
       builder: (context, snapshot) {
         if (snapshot.hasData) {
+          if (snapshot.data!.isEmpty) {
+            return const Center(
+              child:
+                  Text('No departures found', style: TextStyle(fontSize: 22)),
+            );
+          }
           return ListView.builder(
             itemCount: snapshot.data!.length,
             itemBuilder: (context, index) {
@@ -117,6 +122,13 @@ class _NextDepartureAppState extends State<NextDepartureApp> {
                 setState(() {
                   futureDepartures = fetchDepartures(
                       lat: position.latitude, lon: position.longitude);
+
+                  fetchLocation(lat: position.latitude, lon: position.longitude)
+                      .then((value) => {
+                            setState(() {
+                              location = value.address.suburb;
+                            })
+                          });
                 });
               }).catchError((error) {
                 ScaffoldMessenger.of(context).showSnackBar(
