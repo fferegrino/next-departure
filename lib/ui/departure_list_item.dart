@@ -33,8 +33,10 @@ class LineColour {
         return LineColour(background: Colors.blue, text: Colors.white);
       case 'victoria':
         return LineColour(background: Colors.lightBlue, text: Colors.white);
-      case 'waterloo & city':
+      case 'waterloo-city':
         return LineColour(background: Colors.teal, text: Colors.white);
+      case 'hammersmith-city':
+        return LineColour(background: Colors.pink, text: Colors.white);
       default:
         return LineColour(background: Colors.grey, text: Colors.white);
     }
