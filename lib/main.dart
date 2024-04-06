@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:next_departure/entities/departure.dart';
+import 'package:next_departure/entities/service/geocoding_result.dart';
+import 'package:next_departure/geocode_api.dart';
 import 'package:next_departure/tfl_service.dart';
 import 'package:next_departure/ui/departure_list_item.dart';
 import 'package:geolocator/geolocator.dart';
@@ -38,17 +40,27 @@ class NextDepartureApp extends StatefulWidget {
 class _NextDepartureAppState extends State<NextDepartureApp> {
   late Future<List<Departure>> futureDepartures;
   late Future<Position> futurePosition;
+  late String location;
 
   @override
   void initState() {
     super.initState();
     // This is London Bridge
+    location = 'London Bridge';
     futurePosition = _determinePosition();
     futurePosition
         .then((value) => {
               setState(() {
                 futureDepartures =
                     fetchDepartures(lat: value.latitude, lon: value.longitude);
+
+                fetchLocation(lat: value.latitude, lon: value.longitude)
+                    .then((value) => {
+                          setState(() {
+                            print("Address" + value.address.suburb);
+                            location = value.address.suburb;
+                          })
+                        });
               })
             })
         .catchError((error) {
@@ -87,7 +99,7 @@ class _NextDepartureAppState extends State<NextDepartureApp> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(localizations.appTitle),
+        title: Text('${localizations.appTitle} - $location'),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
